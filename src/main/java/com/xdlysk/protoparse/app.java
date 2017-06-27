@@ -14,12 +14,12 @@ public class app {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String descriptorPath = args[0];
+		//String descriptorPath = args[0];
 		String savePath = null;
 		if(args.length>1){
 			savePath = args[1];
 		}
-		//String descriptorPath = "D:\\HackToolbox\\protoc-2.5.0-win32\\InstantMessageProtos.txt";
+		String descriptorPath = "D:\\workspace\\java\\protobuf\\message1.txt";
 		String descriptorString = getProtoDescriptor(descriptorPath);
 		if(descriptorString==null){
 			System.err.println("descriptorString==null");

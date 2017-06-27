@@ -175,8 +175,6 @@ public class Parser {
 		buildFilePackage();
 		buildOptions();
 		
-		buildPublicDependency();
-		
 		List<DescriptorProto> message = _proto.getMessageTypeList();
 		for (DescriptorProto descriptorProto : message) {
 			buildMessageType(descriptorProto);
@@ -202,9 +200,17 @@ public class Parser {
 	}
 	
 	private void buildDependency() {
+		List<Integer> pdeplist = _proto.getPublicDependencyList();
+		
 		List<String> deplist = _proto.getDependencyList();
-		for (String string : deplist) {
-			writeLine("import \""+string+"\";");
+		for(int index = 0;index < deplist.size();index++ ){
+			for(Integer pindex:pdeplist){
+				if(index == pindex.intValue()){
+					writeLine("import public \""+deplist.get(index)+"\";");
+					break;
+				}
+				writeLine("import \""+deplist.get(index)+"\";");
+			}
 		}
 		writeEmptyLine();
 	}
@@ -234,10 +240,6 @@ public class Parser {
 		}
 		
 		writeEmptyLine();
-	}
-	
-	private void buildPublicDependency() {
-		//List<String> pdeplist = _proto.getpub
 	}
 	
 	private void buildMessageType(DescriptorProto des) {

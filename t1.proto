@@ -1,0 +1,17 @@
+import public "t2.proto";
+
+package protobuf_unittest_import;
+
+option java_package="com.google.protobuf.test";
+
+message ImportMessage{
+    required int32 d = 1;
+}
+
+enum ImportEnum {
+    IMPORT_ENUM_UNSPECIFIED = 0;
+    IMPORT_FOO = 7;
+    IMPORT_BAR = 8;
+    IMPORT_BAZ = 9;
+}
+
