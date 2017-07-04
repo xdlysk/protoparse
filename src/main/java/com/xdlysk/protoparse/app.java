@@ -19,7 +19,7 @@ public class app {
 		if(args.length>1){
 			savePath = args[1];
 		}
-		String descriptorPath = "D:\\workspace\\java\\protobuf\\message1.txt";
+		String descriptorPath = "D:\\HackToolbox\\protoc-2.5.0-win32\\test.txt";
 		String descriptorString = getProtoDescriptor(descriptorPath);
 		if(descriptorString==null){
 			System.err.println("descriptorString==null");

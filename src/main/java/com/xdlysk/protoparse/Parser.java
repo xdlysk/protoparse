@@ -18,7 +18,9 @@ import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label;
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Type;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileOptions;
+import com.google.protobuf.DescriptorProtos.ServiceDescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileOptions.OptimizeMode;
+import com.google.protobuf.DescriptorProtos.MethodDescriptorProto;
 import com.google.protobuf.UnknownFieldSet;
 import com.google.protobuf.UnknownFieldSet.Field;
 
@@ -188,6 +190,12 @@ public class Parser {
 		List<FieldDescriptorProto> exts = _proto.getExtensionList();
 		buildExtend(exts);
 		
+		List<ServiceDescriptorProto> services = _proto.getServiceList();
+		for (ServiceDescriptorProto serviceDescriptorProto : services) {
+			buildService(serviceDescriptorProto);
+		}
+		
+		
 		return _sb.toString();
 	}
 	
@@ -222,6 +230,11 @@ public class Parser {
 	
 	private void buildOptions() {
 		FileOptions options = _proto.getOptions();
+		
+		if(options.hasJavaGenericServices()){
+			writeLine("option java_generic_services = "+ options.getJavaGenericServices() +";");
+		}
+		
 		String javaPackage = options.getJavaPackage();
 		
 		if(javaPackage!=null && !javaPackage.equals("")){
@@ -246,11 +259,6 @@ public class Parser {
 		writeLine("message "+des.getName()+"{");
 		addIndent();
 		
-		List<FieldDescriptorProto> fields = des.getFieldList();
-		for (FieldDescriptorProto fieldDescriptorProto : fields) {
-			buildField(fieldDescriptorProto);
-		}
-		
 		List<EnumDescriptorProto> enums = des.getEnumTypeList();
 		for (EnumDescriptorProto enumDescriptorProto : enums) {
 			buildEnumType(enumDescriptorProto);
@@ -267,6 +275,11 @@ public class Parser {
 		}
 	
 		buildExtend(des.getName(),des.getExtensionList());
+		
+		List<FieldDescriptorProto> fields = des.getFieldList();
+		for (FieldDescriptorProto fieldDescriptorProto : fields) {
+			buildField(fieldDescriptorProto);
+		}
 		
 		//TODO:do not know how to parse
 		UnknownFieldSet unknownFieldSet = des.getUnknownFields();
@@ -289,7 +302,7 @@ public class Parser {
 		field+=_labelMap.get(des.getLabel())+" ";
 
 		Type fieldType = des.getType();
-		if(fieldType != Type.TYPE_MESSAGE && fieldType!=Type.TYPE_GROUP){
+		if(fieldType != Type.TYPE_MESSAGE && fieldType!=Type.TYPE_GROUP && fieldType!=Type.TYPE_ENUM){
 			field+=_typeMap.get(des.getType())+" ";
 		}else{
 			field+=des.getTypeName()+" ";
@@ -400,5 +413,20 @@ public class Parser {
 		for(Map.Entry<String, List<FieldDescriptorProto>> entry : map.entrySet()){
 			buildExtend(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	
+	private void buildService(ServiceDescriptorProto des){
+		writeLine("service "+ des.getName() + " {");
+		addIndent();
+		for (MethodDescriptorProto method : des.getMethodList()) {
+			buildMethod(method);
+		}
+		reduceIndent();
+		writeLine("}");
+	}
+	
+	private void buildMethod(MethodDescriptorProto des) {
+		writeLine("rpc " + des.getName() + "(" + des.getInputType() +") returns ("+ des.getOutputType() +")");
 	}
 }
